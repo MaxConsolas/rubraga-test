@@ -1,0 +1,141 @@
+services:
+    nginx:
+      hostname: rubraga-nginx
+      image: nginx:latest
+      ports:
+        - "8383:80"
+      volumes:
+        - .:/var/www
+        - ./.docker/nginx/conf.d:/etc/nginx/conf.d
+        - ./.docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      depends_on:
+        - app
+  
+    app:
+      hostname: rubraga-app
+      build:
+        context: .
+        dockerfile: ./.docker/app/dockerfile
+      volumes:
+        - .:/var/www
+      environment:
+        DB_HOST: rubraga-db
+        DB_PORT: 3306
+        DB_DATABASE: rubraga_dev
+        DB_USERNAME: rubraga_dev
+        DB_PASSWORD: 123123123
+      depends_on:
+        - db
+
+  
+    db:
+      hostname: rubraga-db
+      image: mysql:5.7
+      ports:
+        - "3377:3306"
+      volumes:
+        - ./mysql:/var/lib/mysql
+      environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: rubraga_dev
+        MYSQL_USER: rubraga_dev
+        MYSQL_PASSWORD: 123123123
+      # networks:
+        # - default
+        # - traefik
+  
+    # phpmyadmin:
+    #   image: phpmyadmin
+    #   restart: always
+    #   ports:
+    #     - 8080:80
+    #   environment:
+    #     - PMA_ARBITRARY=1
+  
+    # job-worker:
+    #   build:
+    #     context: .
+    #     dockerfile: ./.docker/app/dockerfile
+    #   volumes:
+    #     - .:/var/www
+    #   working_dir: /var/www
+    #   command: "php artisan horizon"
+    #   environment:
+    #     - REVERB_INTERNAL_HOST=dental_reverb
+    #     - DB_HOST=dental_db
+    #     - DB_PORT=3306
+    #     - DB_DATABASE=dental_dev
+    #     - DB_USERNAME=dental_dev
+    #     - REDIS_HOST=redis
+    #   depends_on:
+    #     - app
+    #     - redis
+    #     - db
+    #   restart: always
+    #   networks:
+    #   # - default
+    #   - traefik
+  
+    # job-scheduler:
+    #   build:
+    #     context: .
+    #     dockerfile: ./.docker/app/dockerfile
+    #   volumes:
+    #     - .:/var/www
+    #   working_dir: /var/www
+    #   command: "php artisan schedule:work"
+    #   depends_on:
+    #     - app
+    #     - redis
+    #   restart: always
+    #   networks:
+    #     # - default
+    #     - traefik
+  
+    # redis:
+    #   image: redis:latest
+    #   restart: always
+    #   # ports:
+    #   #   - "6379:6379"
+    #   command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    #   volumes:
+    #     - ./.docker/redis.conf:/usr/local/etc/redis/redis.conf
+    #     - ./redis-data:/data
+    #   networks:
+    #     # - default
+    #     - traefik
+  
+    # Сервер вебсокетов
+    # reverb:
+    #   hostname: dental_reverb
+    #   build:
+    #     context: .
+    #     dockerfile: ./.docker/app/dockerfile
+    #   volumes:
+    #     - .:/var/www
+    #   working_dir: /var/www
+    #   command: "php artisan reverb:start --debug"
+    #   environment:
+    #     - REVERB_INTERNAL_HOST=dental_reverb
+    #   labels:
+    #     - "traefik.enable=true"
+    #     - "traefik.http.routers.dental_ws.rule=Host(`dental-ws.dev.mvplab.org`)"
+    #     - "traefik.http.routers.dental_ws.tls.certresolver=certresolver"
+    #     - "traefik.http.services.dental_ws.loadbalancer.server.port=80"
+    #     - "traefik.http.routers.dental_ws.entrypoints=https"
+    #   depends_on:
+    #     - app
+    #     - redis
+    #   restart: always
+    #   networks:
+    #     - traefik
+  
+  # networks:
+  #   default:
+  #     external: true
+  #     name: proxy
+
+networks:
+  default:
+    external: true
+    name: proxy
