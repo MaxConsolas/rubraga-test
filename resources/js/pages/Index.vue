@@ -4,19 +4,10 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 
 import {
   NumberField,
@@ -26,13 +17,12 @@ import {
   NumberFieldInput,
 } from '@/components/ui/number-field'
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+
 import {
-  FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '@/components/ui/form'
 
 
@@ -42,16 +32,13 @@ import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { RangeCalendar } from '@/components/ui/range-calendar'
 import {
-  CalendarDate,
   DateFormatter,
   getLocalTimeZone,
 } from '@internationalized/date'
 import { CalendarIcon } from 'lucide-vue-next'
 import { type Ref, ref } from 'vue'
 
-
-
-const df = new DateFormatter('en-US', {
+const df = new DateFormatter('ru-RU', {
   dateStyle: 'medium',
 })
 
@@ -63,6 +50,16 @@ const value = ref({
 
 <template>
   <div class="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
+    <Card class="w-[600px]">
+      <CardHeader>
+        <CardTitle>
+          <div class="flex justify-between align-baseline items-center">
+            <div>Добро пожаловать, sandakov2013@yandex.ru</div>
+            <Button variant="link" class="cursor-pointer">Выход</Button>
+          </div>
+        </CardTitle>
+      </CardHeader>
+    </Card>
     <Card class="w-[600px]">
       <CardHeader>
         <CardTitle>Бронирование номера</CardTitle>
@@ -77,7 +74,7 @@ const value = ref({
               <Popover>
                 <PopoverTrigger as-child>
                   <Button variant="outline" :class="cn(
-                    'justify-start text-left font-normal',
+                    'justify-start text-left font-normal cursor-pointer',
                     !value && 'text-muted-foreground',
                   )">
                     <CalendarIcon class="mr-2 h-4 w-4" />
@@ -100,6 +97,8 @@ const value = ref({
                 <PopoverContent class="w-auto p-0">
                   <RangeCalendar
                     v-model="value"
+                    :isDateUnavailable="(date) => (date.add({ days: 1 }).toDate('Asia/Yekaterinburg') < new Date())"
+                    locale="ru-RU"
                     initial-focus
                     :number-of-months="2"
                     @update:start-value="(startDate) => value.start = startDate"
@@ -112,18 +111,36 @@ const value = ref({
             <NumberField id="age" :default-value="1" :min="0">
               <Label for="age">Количество гостей</Label>
               <NumberFieldContent>
-                <NumberFieldDecrement />
+                <NumberFieldDecrement class="cursor-pointer" />
                 <NumberFieldInput />
-                <NumberFieldIncrement />
+                <NumberFieldIncrement class="cursor-pointer" />
               </NumberFieldContent>
             </NumberField>
           </div>
         </form>
-      </CardContent>
 
-      <CardFooter class="flex justify-end px-6">
-        <Button>Забронировать</Button>
-      </CardFooter>
+
+        <div class="flex flex-col gap-6 mt-12">
+          <Alert class="flex flex-col" v-for="room in [1,2,3,4]">
+            <AlertTitle class="w-full">
+              <div class="flex justify-between">
+                <span>Супериор</span>
+                <span class="text-muted-foreground">400 руб / ночь</span></div>
+              </AlertTitle>
+            <AlertDescription>
+              Двухместный номер с одной двуспальной или двумя отдельными кроватями и возможностью разместить дополнительное спальное место.
+              <div class="justify-self-end mt-4 flex gap-4 justify-center items-baseline">
+                <h4 class="font-semibold text-black">Итого: 2000 руб</h4>
+                <Button size="sm" class="cursor-pointer">
+                  Забронировать
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+
+        </div>
+
+      </CardContent>
     </Card>
   </div>
 
