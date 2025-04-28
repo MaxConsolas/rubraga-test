@@ -1,4 +1,4 @@
-# Тестовое задание для Rubraga (Upjet)
+# Тестовое задание для Upjet
 
 ## Стек технологий
 
@@ -9,7 +9,7 @@
 
 ![Превью проекта](https://i.imgur.com/q4N39XI.png)
 
-https://rubraga-test.dev.sandakov.space
+https://upjet-test.dev.sandakov.space
 
 ---
 
@@ -18,8 +18,8 @@ https://rubraga-test.dev.sandakov.space
 ### 1. Клонировать репозиторий
 
 ```bash
-git clone https://github.com/MaxConsolas/rubraga-test.git
-cd rubraga-test
+git clone https://github.com/MaxConsolas/upjet-test.git
+cd upjet-test
 ```
 
 ### 2. Настроить окружение

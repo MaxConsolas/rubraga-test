@@ -1,6 +1,6 @@
 services:
     nginx:
-      hostname: rubraga-nginx
+      hostname: upjet-nginx
       image: nginx:latest
       volumes:
         - .:/var/www
@@ -10,30 +10,30 @@ services:
         - app
   
     app:
-      hostname: rubraga-app
+      hostname: upjet-app
       build:
         context: .
         dockerfile: ./.docker/app/dockerfile
       volumes:
         - .:/var/www
       environment:
-        DB_HOST: rubraga-db
+        DB_HOST: upjet-db
         DB_PORT: 3306
-        DB_DATABASE: rubraga_dev
-        DB_USERNAME: rubraga_dev
+        DB_DATABASE: upjet_dev
+        DB_USERNAME: upjet_dev
         DB_PASSWORD: 123123123
       depends_on:
         - db
 
     db:
-      hostname: rubraga-db
+      hostname: upjet-db
       image: mysql:5.7
       volumes:
         - ./mysql:/var/lib/mysql
       environment:
         MYSQL_ROOT_PASSWORD: root
-        MYSQL_DATABASE: rubraga_dev
-        MYSQL_USER: rubraga_dev
+        MYSQL_DATABASE: upjet_dev
+        MYSQL_USER: upjet_dev
         MYSQL_PASSWORD: 123123123
 
 networks:

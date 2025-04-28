@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Rubraga test</title>
+    <title>Upjet test</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>

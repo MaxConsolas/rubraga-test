@@ -45,7 +45,7 @@ const handleSubmit = async () => {
       password: user.value.password
     });
     
-    // router.push('/');
+    router.push('/');
   } catch (error) {
     console.log(12313)
     if (error.response?.data?.errors) {
