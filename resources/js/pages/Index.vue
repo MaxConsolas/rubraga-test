@@ -19,11 +19,11 @@
         <form>
           <div class="grid grid-cols-2 items-center w-full gap-8">
             <DateRangeInput
-              @select-range="(value) => bookRange = value"
+              @select-range="(value) => setBookRange(value)"
             />
 
             <GuestCountInput
-              @update="(value) => guestCount = value"
+              @update="(value) => setGuestCount(value)"
             />
             
           </div>
@@ -73,6 +73,14 @@ const bookRange = ref<DateRange>({
   start: undefined,
   end: undefined,
 })
+
+function setBookRange(value) {
+  bookRange.value = value;
+}
+
+function setGuestCount(value) {
+  guestCount.value = value;
+}
 
 const guestCount = ref(1)
 const loading = ref(false)

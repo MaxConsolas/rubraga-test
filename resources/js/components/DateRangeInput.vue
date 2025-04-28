@@ -27,15 +27,14 @@
 
         <PopoverContent class="w-auto p-0">
           <RangeCalendar
-            v-model="value"
             :isDateUnavailable="(date) => (date.add({ days: 1 }).toDate('Asia/Yekaterinburg') < new Date())"
             locale="ru-RU"
             initial-focus
             :number-of-months="2"
-            @update:start-value="selectStart"
-            @update:end-value="selectEnd"
             @update:model-value="selectRange"
-          />
+            />
+            <!-- @update:start-value="selectStart"
+            @update:end-value="selectEnd" -->
         </PopoverContent>
       </Popover>
     </FormItem>
@@ -69,20 +68,13 @@ const df = new DateFormatter('ru-RU', {
   dateStyle: 'medium',
 })
 
-const value = reactive<DateRange>({
+const value = ref<DateRange>({
   start: undefined,
   end: undefined,
 })
 
-function selectStart(start) {
-  value.start = start
-}
-
-function selectEnd(end) {
-  value.end = end
-}
-
 function selectRange(range) {
+  value.value = range
   emit('selectRange', range)
 }
 
