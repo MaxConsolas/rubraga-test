@@ -19,7 +19,7 @@ const error = ref(null);
 
 const handleSubmit = async () => {
   try {
-    await store.dispatch('auth/login', user.value);
+    await store.dispatch('login', user.value);
     router.push('/');
   } catch (err) {
     error.value = err.response?.data?.error || 'Login failed';
@@ -33,7 +33,7 @@ const handleSubmit = async () => {
       <div class="flex flex-col gap-6">
         <div class="flex flex-col items-center gap-2">
           <h1 class="text-xl font-bold">
-            l
+            Welcome
           </h1>
           <div class="text-center text-sm">
             Нет аккаунта?
@@ -46,6 +46,7 @@ const handleSubmit = async () => {
             <Input
               id="email"
               type="email"
+              v-model="user.email"
               placeholder="m@example.com"
               required
             />
@@ -55,11 +56,12 @@ const handleSubmit = async () => {
             <Input
               id="password"
               type="password"
+              v-model="user.password"
               placeholder=""
               required
             />
           </div>
-          <Button type="submit" class="w-full">
+          <Button type="button" class="w-full" @click="handleSubmit">
             Войти
           </Button>
         </div>

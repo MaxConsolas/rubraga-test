@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('room_type_id')->constrained();
             $table->unsignedInteger('capacity')->comment("Вместимость номера");
             $table->decimal('price', 8, 2);
-            $table->text('description');
+            // $table->text('description');
             $table->timestamps();
         });
     }

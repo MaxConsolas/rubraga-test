@@ -4,8 +4,8 @@
       <CardHeader>
         <CardTitle>
           <div class="flex justify-between align-baseline items-center">
-            <div>Добро пожаловать, sandakov2013@yandex.ru</div>
-            <Button variant="link" class="cursor-pointer">Выход</Button>
+            <div>Добро пожаловать, {{ store.state.user.user.name }}</div>
+            <Button variant="link" class="cursor-pointer" @click="logout">Выход</Button>
           </div>
         </CardTitle>
       </CardHeader>
@@ -30,8 +30,10 @@
         </form>
 
         <RoomList
-          :list="[1,2,3,4,5]"
-          @select=""
+          :loading="loading"
+          :list="rooms"
+          :days="getDaysBetween(bookRange.start, bookRange.end)"
+          @pickRoom="pickRoom"
         />
       </CardContent>
     </Card>
@@ -52,12 +54,22 @@ import {
 
 import { defineComponent, reactive, type Ref, ref, watch } from 'vue'
 import type { DateRange } from 'reka-ui'
+import axios from 'axios';
+import { parseDate } from '@internationalized/date';
+import { useRouter } from 'vue-router'
 
 import RoomList from '@/components/RoomList.vue'
 import DateRangeInput from '@/components/DateRangeInput.vue'
 import GuestCountInput from '@/components/GuestCountInput.vue'
+import { useDateFormatter } from 'reka-ui';
+import { toast } from 'vue-sonner'
 
-const bookRange = reactive<DateRange>({
+import { useStore } from 'vuex';
+
+const store = useStore();
+const router = useRouter()
+
+const bookRange = ref<DateRange>({
   start: undefined,
   end: undefined,
 })
@@ -65,19 +77,65 @@ const bookRange = reactive<DateRange>({
 const guestCount = ref(1)
 const loading = ref(false)
 
-const rooms = reactive([])
+const rooms = ref([])
 
-watch([bookRange, guestCount], async ([newRange, newGuestCount]) => {
-  if (newRange.start && newRange.end && newGuestCount) {
-    loading.value = true
-    try {
-      const res = await fetch('https://yesno.wtf/api')
-      answer.value = (await res.json()).answer
+function getDaysBetween(start, end) {
+  if (!start || !end) return 1;
+  const jsStart = start.toDate('Asia/Yekaterinburg');
+  const jsEnd = end.toDate('Asia/Yekaterinburg');
+
+  const diffTime = jsEnd.getTime() - jsStart.getTime();
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+async function pickRoom(roomId) {
+  if (!bookRange.value.start || !bookRange.value.end || !guestCount.value) return;
+  console.log(roomId)
+  try {
+      const res = await axios.post('api/book', {
+        start_date: `${bookRange.value.start.year}-${bookRange.value.start.month}-${bookRange.value.start.day}`,
+        end_date: `${bookRange.value.end.year}-${bookRange.value.end.month}-${bookRange.value.end.day}`,
+        guest_count: guestCount.value,
+        room_id: roomId
+      })
+      const data = (await res.data)
+      rooms.value = data
+      toast('Успешно', {
+        description: "Вы забронировали номер",
+      })
+      fetchRooms(bookRange.value, guestCount.value)
     } catch (error) {
-      answer.value = 'Error! Could not reach the API. ' + error
+      console.log(error)
     } finally {
       loading.value = false
     }
+}
+
+function logout() {
+  store.dispatch('logout')
+  router.push('/login')
+}
+
+async function fetchRooms(range, guestCount) {
+  try {
+    loading.value = true
+    const res = await axios.post('api/rooms/available', {
+      start_date: `${range.start.year}-${range.start.month}-${range.start.day}`,
+      end_date: `${range.end.year}-${range.end.month}-${range.end.day}`,
+      guest_count: guestCount,
+    })
+    const data = (await res.data)
+    rooms.value = data
+  } catch (error) {
+    console.log(error)
+  } finally {
+    loading.value = false
+  }
+}
+
+watch([bookRange, guestCount], async ([newRange, newGuestCount]) => {
+  if (newRange.start && newRange.end && newGuestCount) {
+    fetchRooms(newRange, newGuestCount)
   }
 })
 </script>

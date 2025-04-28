@@ -52,15 +52,4 @@ class AuthController extends Controller
 
         return $attempt;
     }
-
-    public function logout(Request $request)
-    {
-        // Удаление всех токенов пользователя
-        $request->user()->tokens()->delete();
-        
-        // Использование Fortify logout
-        app(Logout::class)($request);
-        
-        return response()->json(['message' => 'Logged out successfully']);
-    }
 }

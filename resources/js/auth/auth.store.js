@@ -1,7 +1,7 @@
 import AuthService from './auth.service';
 
 export default {
-  namespaced: true,
+  // namespaced: true,
   state: () => ({
     user: JSON.parse(localStorage.getItem('user')),
     loggedIn: !!localStorage.getItem('user')

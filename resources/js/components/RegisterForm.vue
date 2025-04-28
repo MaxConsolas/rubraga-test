@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import { toast } from 'vue-sonner'
 
 const router = useRouter();
 const store = useStore();
@@ -36,7 +37,7 @@ const handleSubmit = async () => {
   registerError.value = null;
 
   try {
-    await store.dispatch('auth/register', user.value);
+    await store.dispatch('register', user.value);
     
     // После успешной регистрации автоматически логиним пользователя
     await store.dispatch('auth/login', {
@@ -44,9 +45,13 @@ const handleSubmit = async () => {
       password: user.value.password
     });
     
-    router.push('/dashboard');
+    // router.push('/');
   } catch (error) {
+    console.log(12313)
     if (error.response?.data?.errors) {
+      toast('Ошибка при регистрации', {
+        description: error.response?.data?.message ?? "",
+      })
       // Обработка ошибок валидации с сервера
       errors.value = { ...errors.value, ...error.response.data.errors };
     } else {
@@ -93,7 +98,7 @@ const handleSubmit = async () => {
             />
           </div>
           <div class="grid gap-2">
-            <Label html-for="password">Password</Label>
+            <Label html-for="password">Пароль</Label>
             <Input
               id="password"
               type="password"
@@ -102,7 +107,17 @@ const handleSubmit = async () => {
               required
             />
           </div>
-          <Button type="submit" class="w-full">
+          <div class="grid gap-2">
+            <Label html-for="password_confirmation">Подтверждение пароля</Label>
+            <Input
+              id="password_confirmation"
+              type="password"
+              v-model="user.password_confirmation"
+              placeholder=""
+              required
+            />
+          </div>
+          <Button type="button" class="w-full" @click="handleSubmit">
             Зарегистрироваться
           </Button>
         </div>

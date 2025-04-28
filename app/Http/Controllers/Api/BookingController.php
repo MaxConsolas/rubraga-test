@@ -4,62 +4,64 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Booking;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\BookingRequest;
+use App\Http\Requests\BookingFetchRequest;
+use App\Repositories\Interfaces\RoomRepositoryInterface;
+use App\Repositories\Interfaces\BookingRepositoryInterface;
 
 class BookingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+    protected $roomRepository;
+    protected $bookingRepository;
+
+    public function __construct(
+        RoomRepositoryInterface $roomRepository,
+        BookingRepositoryInterface $bookingRepository
+    ) {
+        $this->roomRepository = $roomRepository;
+        $this->bookingRepository = $bookingRepository;
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Получить доступные комнаты
      */
-    public function create()
+    public function availableRooms(BookingFetchRequest $request)
     {
-        //
+        $validated = $request->validated();
+        
+        $rooms = $this->roomRepository->getAvailable(
+            $validated['start_date'],
+            $validated['end_date'],
+            $validated['guest_count']
+        )->unique('room_type_id');
+
+        return response()->json($rooms);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Создать бронирование
      */
-    public function store(Request $request)
+    public function store(BookingRequest $request)
     {
-        //
-    }
+        $validated = $request->validated();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Booking $booking)
-    {
-        //
-    }
+        if ($this->bookingRepository->findConflictingBookings(
+            $validated['room_id'],
+            $validated['start_date'],
+            $validated['end_date']
+        )) {
+            return response()->json(['message' => 'Room is already booked for these dates'], 409);
+        }
+        // dd( $validated);
+        $booking = $this->bookingRepository->createBooking([
+            'room_id' => $validated['room_id'],
+            'user_id' => auth()->id(),
+            'check_in_date' => $validated['start_date'],
+            'check_out_date' => $validated['end_date'],
+            // 'guest_count' => $validated['guest_count'],
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Booking $booking)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Booking $booking)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Booking $booking)
-    {
-        //
+        return response()->json($booking, 201);
     }
 }

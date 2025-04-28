@@ -1,16 +1,16 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL + '/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 class AuthService {
   login(user) {
     return axios
-      .post(API_URL + '/auth/login', {
+      .post(API_URL + '/api/auth/login', {
         email: user.email,
         password: user.password
       })
       .then(response => {
-        if (response.data.access_token) {
+        if (response.data.token) {
           localStorage.setItem('user', JSON.stringify(response.data));
         }
         return response.data;
@@ -25,7 +25,8 @@ class AuthService {
     return axios.post(API_URL + '/register', {
       name: user.name,
       email: user.email,
-      password: user.password
+      password: user.password,
+      password_confirmation: user.password_confirmation
     });
   }
 }
